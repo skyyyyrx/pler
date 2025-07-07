@@ -1,10 +1,18 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 import random
 import time
 import requests
+import selenium
+
+# Coba import Service jika selenium >= 4.6.0
+try:
+    from selenium.webdriver.chrome.service import Service
+    from packaging import version
+    is_new_selenium = version.parse(selenium.__version__) >= version.parse("4.6.0")
+except:
+    is_new_selenium = False
 
 # === Telegram Bot Setup ===
 BOT_TOKEN = "8163512363:AAH7dF8aDr-NHYhF9JhZD62-zHSQ8Naz7uY"
@@ -36,10 +44,12 @@ chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
 chrome_options.add_experimental_option("useAutomationExtension", False)
 chrome_options.add_experimental_option("detach", True)
 
-service = Service(chrome_driver_path)
-
 try:
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+    if is_new_selenium:
+        service = Service(chrome_driver_path)
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+    else:
+        driver = webdriver.Chrome(executable_path=chrome_driver_path, options=chrome_options)
 
     # Hide webdriver flag
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
