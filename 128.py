@@ -1,49 +1,67 @@
-import time
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 import random
+import time
 import requests
 import selenium
-from selenium.webdriver.common.by import By
-from packaging import version
+
+# Coba import Service jika selenium >= 4.6.0
+try:
+    from selenium.webdriver.chrome.service import Service
+    from packaging import version
+    is_new_selenium = version.parse(selenium.__version__) >= version.parse("4.6.0")
+except:
+    is_new_selenium = False
 
 # === Telegram Bot Setup ===
 BOT_TOKEN = "8163512363:AAH7dF8aDr-NHYhF9JhZD62-zHSQ8Naz7uY"
 CHAT_ID = "7118252117"
 SEND_EVERY = 5  # seconds
 
-# === Coba pakai undetected-chromedriver (otomatis unduh Chromium) ===
+# === Chrome Driver Setup ===
+chrome_driver_path = "/usr/local/bin/chromedriver"
+
+chrome_options = Options()
+chrome_options.add_argument("--enable-javascript")
+chrome_options.add_argument("--headless=new")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+chrome_options.add_argument("--disable-infobars")
+chrome_options.add_argument("--disable-extensions")
+chrome_options.add_argument("--disable-gpu")
+chrome_options.add_argument("--disable-dev-tools")
+chrome_options.add_argument("--no-default-browser-check")
+chrome_options.add_argument("--no-first-run")
+chrome_options.add_argument("--disable-web-security")
+chrome_options.add_argument("--disable-notifications")
+chrome_options.add_argument("--disable-popup-blocking")
+chrome_options.add_argument("--ignore-certificate-errors")
+chrome_options.add_argument("--disable-logging")
+chrome_options.add_argument("--log-level=3")
+chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+chrome_options.add_experimental_option("useAutomationExtension", False)
+chrome_options.add_experimental_option("detach", True)
+
 try:
-    import undetected_chromedriver as uc
-except ImportError:
-    print("Menginstall undetected-chromedriver...")
-    import os
-    os.system("pip install undetected-chromedriver")
-    import undetected_chromedriver as uc
+    if is_new_selenium:
+        service = Service(chrome_driver_path)
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+    else:
+        driver = webdriver.Chrome(executable_path=chrome_driver_path, options=chrome_options)
 
-options = uc.ChromeOptions()
-options.add_argument("--headless=new")
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
-options.add_argument("--disable-blink-features=AutomationControlled")
-options.add_argument("--disable-infobars")
-options.add_argument("--disable-extensions")
-options.add_argument("--disable-gpu")
-options.add_argument("--no-default-browser-check")
-options.add_argument("--no-first-run")
-options.add_argument("--disable-web-security")
-options.add_argument("--disable-notifications")
-options.add_argument("--disable-popup-blocking")
-options.add_argument("--ignore-certificate-errors")
-options.add_argument("--disable-logging")
-options.add_argument("--log-level=3")
-
-try:
-    driver = uc.Chrome(options=options)
-
-    # Stealth anti-bot
-    driver.execute_script("""
-        Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-        window.chrome = {runtime: {}};
-    """)
+    # Hide webdriver flag
+    driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+        "source": """
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => undefined
+            });
+            window.chrome = {
+                runtime: {},
+            };
+        """
+    })
 
     print("Starting mining operation...")
 
@@ -60,21 +78,22 @@ try:
             hashrate = driver.find_element(By.CSS_SELECTOR, "span#hashrate strong").text
             timestamp = time.ctime()
             message = f"⛏️ {timestamp}\n⚡ Hashrate: {hashrate}\n 👨🏻‍💻 [ZPOOL]\nSKY MINER"
+
             print(message)
 
+            # Send message to Telegram
             requests.post(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                 data={"chat_id": CHAT_ID, "text": message}
             )
+
         except Exception as inner_err:
-            print(f"[!] Error: {inner_err}")
+            print(f"[!] Error retrieving or sending hashrate: {inner_err}")
 
         time.sleep(SEND_EVERY)
 
 except Exception as e:
     print(f"[!] Critical error: {str(e)}")
 finally:
-    try:
+    if 'driver' in locals():
         driver.quit()
-    except:
-        pass
