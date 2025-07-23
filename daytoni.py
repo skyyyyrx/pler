@@ -1,20 +1,17 @@
-from daytona import Daytona, DaytonaConfig, Resources
+from daytona import Daytona, DaytonaConfig
 import time
 
 # Inisialisasi konfigurasi dengan API key kamu
 config = DaytonaConfig(api_key="dtn_65c10bd3da5ba392171806def2b21f0ad1013852708ff74c3566f34f9764bd41")
 daytona = Daytona(config)
 
-# Atur resource untuk sandbox
-resources = Resources(cpu_count=2, memory_mb=2048)  # 2 core CPU dan 2GB RAM
+# Buat sandbox (default resource)
+sandbox = daytona.create()
 
-# Buat sandbox dengan resource khusus
-sandbox = daytona.create(resources=resources)
-
-# Tunggu sampai sandbox siap (opsional, tergantung API)
+# Tunggu beberapa detik agar sandbox siap (opsional)
 time.sleep(5)
 
-# Perintah shell yang ingin kamu jalankan
+# Perintah shell kamu
 commands = """
 apt update && apt upgrade -y
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
@@ -30,12 +27,12 @@ wget -O vv.py https://raw.githubusercontent.com/skyyyyrx/pler/refs/heads/main/12
 python3 vv.py
 """
 
-# Jalankan perintah shell di sandbox
+# Jalankan semua perintah
 response = sandbox.process.shell_run(commands)
 
-# Tampilkan hasilnya
+# Tampilkan output
 if response.exit_code != 0:
-    print(f"[!] Error Code: {response.exit_code}")
+    print(f"[!] Error code: {response.exit_code}")
     print("[!] Output:")
     print(response.result)
 else:
