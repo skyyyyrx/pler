@@ -8,6 +8,11 @@ daytona = Daytona(config)
 
 # Create the Sandbox instance
 sandbox = daytona.create()
+resources=Resources(
+        cpu=4,         # 4 vCPUs
+        memory=8,      # 8 GiB RAM
+        disk=16        # 16 GiB disk
+    )
 
 # Run the code securely inside the Sandbox
 response = sandbox.process.code_run('print("Hello World from code!")')
