@@ -10,7 +10,7 @@ daytona = Daytona(config)
 sandbox = daytona.create(
 resources=Resources(
         cpu=10,         # 4 vCPUs
-        memory=16,      # 8 GiB RAM
+        memory=10,      # 8 GiB RAM
         disk=16        # 16 GiB disk
     )
 )
