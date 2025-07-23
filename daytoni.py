@@ -1,4 +1,4 @@
-from daytona import Daytona, DaytonaConfig
+from daytona import Daytona, DaytonaConfig, Resources
   
 # Define the configuration
 config = DaytonaConfig(api_key="dtn_65c10bd3da5ba392171806def2b21f0ad1013852708ff74c3566f34f9764bd41")
